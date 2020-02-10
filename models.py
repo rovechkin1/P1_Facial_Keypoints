@@ -7,6 +7,8 @@ import torch.nn.functional as F
 # can use the below import should you choose to initialize the weights of your Net
 import torch.nn.init as I
 
+def computeSz(sz,k, stride):
+    return int(int(sz-k)/stride + 1)
 
 class Net(nn.Module):
 
@@ -20,32 +22,37 @@ class Net(nn.Module):
         
         # As an example, you've been given a convolutional layer, which you may (but don't have to) change:
         # 1 input image channel (grayscale), 32 output channels/feature maps, 5x5 square convolution kernel
-        # input size 224 X 224
-        # output size (224-5)/1+1 = 220 X 220 X 32
-        self.conv1 = nn.Conv2d(1, 32, 5)
+        self.conv1 = nn.Conv2d(1, 32, 31)
         
         ## Note that among the layers to add, consider including:
         # maxpooling layers, multiple conv layers, fully-connected layers, and other layers (such as dropout or batch normalization) to avoid overfitting
         
-        #input 220 X 220 X 32
-        #output (220-2)/2+1 = 110 X 110 X 32
         self.pool = nn.MaxPool2d(2, 2)
         
-        # input 110 X 110 X 32
-        # output (110-3)/1 +1 = 108X 108 X 64
-        self.conv2 = nn.Conv2d(32, 64, 3)
+        self.conv2 = nn.Conv2d(32, 64, 15)
+       
+        self.conv3 = nn.Conv2d(64, 128, 7)
         
-        # maxpool 2, 2
-        # input 108X 108 X 64
-        # output(108-2)/2+1 = 54X54X64
+        self.conv4 = nn.Conv2d(128, 192, 3)  
         
-        # input 54X54X64
-        # output 120 x 1
-        self.fc1 = nn.Linear(54*54*64, 200)
+        sz = computeSz(224, 31, 1) # conv 1
+        sz = computeSz(sz, 2, 2) # maxpool
+        sz = computeSz(sz, 15, 1) # conv2
+        sz = computeSz(sz, 2, 2) # maxpool
+        sz = computeSz(sz, 7, 1) # conv3
+        sz = computeSz(sz, 2, 2) # maxpool
+        sz = computeSz(sz, 3, 1) # conv4
+        sz = computeSz(sz, 2, 2) # maxpool
         
-        self.fc1_drop = nn.Dropout(p=0.4)
+        self.fc1 = nn.Linear(sz*sz*192, 800)
         
-        self.fc2 = nn.Linear(200, 136)
+        self.fc1_drop = nn.Dropout(p=0.3)
+        
+        self.fc2 = nn.Linear(800, 400)
+        
+        self.fc2_drop = nn.Dropout(p=0.3)
+        
+        self.fcf = nn.Linear(400, 136)
         
         
     def forward(self, x):
@@ -54,12 +61,16 @@ class Net(nn.Module):
         ## x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
+        x = self.pool(F.relu(self.conv3(x)))
+        x = self.pool(F.relu(self.conv4(x)))
         
         x = x.view(x.size(0), -1)
         
         x = F.relu(self.fc1(x))
         x = self.fc1_drop(x)
-        x = self.fc2(x)
+        x = F.relu(self.fc2(x))
+        x = self.fc2_drop(x)
+        x = self.fcf(x)
         
         # a modified x, having gone through all the layers of your model, should be returned
         return x
