@@ -7,8 +7,8 @@ import torch.nn.functional as F
 # can use the below import should you choose to initialize the weights of your Net
 import torch.nn.init as I
 
-def computeSz(sz,k, stride):
-    return int(int(sz-k)/stride + 1)
+def computeSz(sz,k, stride, pad = 0):
+    return int(int(sz-k+2*pad)/stride + 1)
 
 class Net(nn.Module):
 
@@ -29,7 +29,10 @@ class Net(nn.Module):
         
         self.pool = nn.MaxPool2d(2, 2)
         
+        self.conv1_bn = nn.BatchNorm2d(32)
+        
         self.conv2 = nn.Conv2d(32, 64, 15)
+        self.conv2_bn = nn.BatchNorm2d(64)
        
         self.conv3 = nn.Conv2d(64, 128, 7)
         
@@ -46,19 +49,19 @@ class Net(nn.Module):
         
         self.drop = nn.Dropout(p=0.4)
             
-        self.fc1 = nn.Linear(sz*sz*192, 800)
+        self.fc1 = nn.Linear(sz*sz*192, 1200)
         
-        self.fc2 = nn.Linear(800, 400)
+        self.fc2 = nn.Linear(1200, 800)
         
-        self.fcf = nn.Linear(400, 136)
+        self.fcf = nn.Linear(800, 136)
         
         
     def forward(self, x):
         ## TODO: Define the feedforward behavior of this model
         ## x is the input image and, as an example, here you may choose to include a pool/conv step:
         ## x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
+        x = self.conv1_bn(self.pool(F.relu(self.conv1(x))))
+        x = self.conv2_bn(self.pool(F.relu(self.conv2(x))))
         x = self.pool(F.relu(self.conv3(x)))
         x = self.pool(F.relu(self.conv4(x)))
         x = self.drop(x)
