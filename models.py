@@ -22,27 +22,22 @@ class Net(nn.Module):
         
         # As an example, you've been given a convolutional layer, which you may (but don't have to) change:
         # 1 input image channel (grayscale), 32 output channels/feature maps, 5x5 square convolution kernel
-        self.conv1 = nn.Conv2d(1, 32, 31)
-        
-        ## Note that among the layers to add, consider including:
-        # maxpooling layers, multiple conv layers, fully-connected layers, and other layers (such as dropout or batch normalization) to avoid overfitting
+        self.conv1 = nn.Conv2d(1, 32, 17)
         
         self.pool = nn.MaxPool2d(2, 2)
         
         self.conv1_bn = nn.BatchNorm2d(32)
         
-        self.conv2 = nn.Conv2d(32, 64, 15)
+        self.conv2 = nn.Conv2d(32, 64, 11)
         self.conv2_bn = nn.BatchNorm2d(64)
-       
-        self.conv3 = nn.Conv2d(64, 128, 7)
-        
+        self.conv3 = nn.Conv2d(64, 128, 5)
         self.conv4 = nn.Conv2d(128, 192, 3)  
         
-        sz = computeSz(224, 31, 1) # conv 1
+        sz = computeSz(224, 17, 1) # conv 1
         sz = computeSz(sz, 2, 2) # maxpool
-        sz = computeSz(sz, 15, 1) # conv2
+        sz = computeSz(sz, 11, 1) # conv2
         sz = computeSz(sz, 2, 2) # maxpool
-        sz = computeSz(sz, 7, 1) # conv3
+        sz = computeSz(sz, 5, 1) # conv3
         sz = computeSz(sz, 2, 2) # maxpool
         sz = computeSz(sz, 3, 1) # conv4
         sz = computeSz(sz, 2, 2) # maxpool
