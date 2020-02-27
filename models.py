@@ -77,8 +77,11 @@ class Net(nn.Module):
         x = self.drop(x)
         #(1): Linear(in_features=9216, out_features=4096, bias=True)
         #(2): ReLU(inplace=True)
+<<<<<<< HEAD
         x = x.view(x.size(0), -1)
 
+=======
+>>>>>>> 73bbbddb27ca15c5ad461d3e242c2a2abfd45d72
         x = F.relu(self.fc1(x))
         #(3): Dropout(p=0.5, inplace=False)
         x = self.drop(x)
@@ -86,7 +89,11 @@ class Net(nn.Module):
         #(5): ReLU(inplace=True)
         x = F.relu(self.fc2(x))
         #(6): Linear(in_features=4096, out_features=1000, bias=True)
+<<<<<<< HEAD
         x=self.fc3(x)
+=======
+        self.fc3(x)
+>>>>>>> 73bbbddb27ca15c5ad461d3e242c2a2abfd45d72
        
         
         # a modified x, having gone through all the layers of your model, should be returned
